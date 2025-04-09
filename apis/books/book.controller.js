@@ -8,10 +8,10 @@ const { uplodeBookImage, deleteCloudinaryImage } = require('../../utils/image.js
 
 const createBook = async (req, res, next) => {
     try {
-        const { book_name, author_name, book_type, description, price, category, published_year, token } = req.body;
+        const { token, author_name, book_type, description, price, category, published_year, book_name } = req?.body;
 
         // Basic field validation
-        if (!book_name || !author_name || !book_type || !description || !price || !category || !published_year || !token) {
+        if (!author_name || !book_type || !description || !price || !category || !published_year || !token) {
             return res.status(400).send("All input is required");
         }
 
@@ -21,7 +21,7 @@ const createBook = async (req, res, next) => {
         }
 
         // Check for existing book
-        const bookNameExists = await Books.findOne({ book_name });
+        const bookNameExists = await Books.findOne({ book_name: book_name });
         if (bookNameExists) {
             return res.status(409).json({ message: "Book name already exists" });
         }
