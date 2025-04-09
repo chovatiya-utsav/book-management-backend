@@ -8,10 +8,10 @@ const uplodeBookImage = async (filePath) => {
             resource_type: 'auto'
         });
         console.log('✅ Image uploaded successfully');
-        fs.unlinkSync(filePath);
+        // fs.unlinkSync(filePath);
         return result.secure_url;
     } catch (error) {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        // if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         console.error('❌ Cloudinary upload failed:', error);
         return null;
     }
