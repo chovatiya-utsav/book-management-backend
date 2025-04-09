@@ -8,71 +8,66 @@ const { uplodeBookImage, deleteCloudinaryImage } = require('../../utils/image.js
 
 const createBook = async (req, res, next) => {
     try {
-        const { book_name, author_name, book_type, description, price, category, published_year, token } = req.body;
-
-        if (!(book_name, author_name, book_type, description, price, category, published_year, token)) {
-            res.status(400).send("All input is required");
-        } else {
-            if (!req.file) {
-                res.status(400).send("image is required");
-            }
-
-            const bookNameExists = await Books.findOne({ book_name: book_name });
-
-
-            if (bookNameExists) {
-                res.status(409).send({ message: "book name is alerdy exists" });
-            }
-
-            userData = await getUserID(token);
-
-            if (userData && !bookNameExists) {
-
-                user_id = new mongoose.Types.ObjectId(userData._id);
-
-                // Upload book image
-                const imagePath = req.file?.path;
-                const imageUrl = imagePath ? await uplodeBookImage(imagePath) : null;
-
-                if (imageUrl) {
-                    const book = new Books({
-                        book_name,
-                        author_name,
-                        book_type,
-                        description,
-                        price, category,
-                        published_year,
-                        book_image: imageUrl,
-                        user_id
-
-                    });
-
-                    const bookData = await book.save();
-
-                    const allBookData = await Books.find({});
-                    res.status(200).json(
-                        {
-                            message: "book added successfully",
-                            status: 200,
-                            data: [...allBookData]
-                        })
-                }
-                else {
-                    res.status(400).json({ message: "image not uploaded", imageUrl })
-                }
-
-            } else {
-                res.status(401).json({ message: "Invalid or expired token" });
-            }
+        if (!req.body) {
+            return res.status(400).send("Request body is missing");
         }
 
+        const { book_name, author_name, book_type, description, price, category, published_year, token } = req.body;
 
+        if (!(book_name && author_name && book_type && description && price && category && published_year && token)) {
+            return res.status(400).send("All input is required");
+        }
 
+        if (!req.file) {
+            return res.status(400).send("image is required");
+        }
+
+        const bookNameExists = await Books.findOne({ book_name });
+
+        if (bookNameExists) {
+            return res.status(409).send({ message: "book name is already exists" });
+        }
+
+        const userData = await getUserID(token);
+
+        if (userData) {
+            const user_id = new mongoose.Types.ObjectId(userData._id);
+            const imagePath = req.file.path;
+            const imageUrl = await uplodeBookImage(imagePath);
+
+            if (!imageUrl) {
+                return res.status(400).json({ message: "image not uploaded", imageUrl });
+            }
+
+            const book = new Books({
+                book_name,
+                author_name,
+                book_type,
+                description,
+                price,
+                category,
+                published_year,
+                book_image: imageUrl,
+                user_id
+            });
+
+            await book.save();
+            const allBookData = await Books.find({});
+
+            return res.status(200).json({
+                message: "book added successfully",
+                status: 200,
+                data: allBookData
+            });
+        } else {
+            return res.status(401).json({ message: "Invalid or expired token" });
+        }
 
     } catch (error) {
-        next(error)
+        next(error);
     }
-}
+};
+
 
 const getBookData = async (req, res, next) => {
     try {
