@@ -20,7 +20,7 @@ const connectDB = async () => {
 connectDB();
 
 // Mount routes
-const routes = require('../index.route');
+const routes = require('./index.route');
 app.use('/api', routes);
 
 module.exports = app;
