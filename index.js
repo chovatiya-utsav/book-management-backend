@@ -12,10 +12,7 @@ app.use(express.json());
 let isDbConnected = false;
 const connectDB = async () => {
   if (!isDbConnected) {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGO_URI);
     isDbConnected = true;
     console.log('✅ MongoDB connected (Vercel)');
   }
