@@ -31,7 +31,7 @@ const createBook = async (req, res, next) => {
                 user_id = new mongoose.Types.ObjectId(userData._id);
 
                 // Upload book image
-                const imagePath = req.file?.path;
+                const imagePath = await req.file?.path;
                 const imageUrl = imagePath ? await uplodeBookImage(imagePath) : null;
 
                 if (!imageUrl) {
