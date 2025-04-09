@@ -20,7 +20,7 @@ router.route('/numberOfBooks')
 
 router.route('/')
     .get(BooksCtrl.getBookData)
-    .post( BooksCtrl.createBook);
+    .post(BooksCtrl.createBook);
 
 
 module.exports = router;
