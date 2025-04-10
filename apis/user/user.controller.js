@@ -157,7 +157,6 @@ const updateUserData = async (req, res, next) => {
                 // ✅ Check if new image uploaded
                 if (req?.file) {
 
-
                     if (UserId?.profile_image) {
                         const parts = UserId.profile_image.split('/');
                         const fileName = parts[parts.length - 1];
@@ -165,10 +164,9 @@ const updateUserData = async (req, res, next) => {
                         publicId = `${folder}/${fileName.split('.')[0]}`; // remove .jpg or .png
 
                         await cloudinary.uploader.destroy(publicId);
-                        // fs.unlinkSync(publicId);
                     }
 
-                    const result = await cloudinary.uploader.upload(req?.file.path, {
+                    const result = await cloudinary.uploader.upload_stream(req?.file.buffer, {
                         folder: 'users',
                         transformation: [{ width: 300, height: 300, crop: 'limit' }],
                     });
@@ -178,8 +176,6 @@ const updateUserData = async (req, res, next) => {
 
                     userData.profile_image = result.secure_url;
 
-                    // ✅ Clean up local file
-                    fs.unlinkSync(req?.file.path);
                 }
 
 

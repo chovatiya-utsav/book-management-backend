@@ -1,5 +1,7 @@
 const express = require('express');
 const UserCtrl = require('./user.controller');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
 
@@ -14,7 +16,7 @@ router.route('/numberOfUsers')
     .get(UserCtrl.getUserCount);
 
 router.route('/updateUserDetail')
-    .post(UserCtrl.updateUserData);
+    .post(upload.single('book_image'),UserCtrl.updateUserData);
 
 router.route('/')
     .post(UserCtrl.getUserLoginData);
