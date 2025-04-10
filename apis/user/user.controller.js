@@ -166,7 +166,7 @@ const updateUserData = async (req, res, next) => {
                         await cloudinary.uploader.destroy(publicId);
                     }
 
-                    const result = await cloudinary.uploader.upload_stream(req?.file.buffer, {
+                    const result = await cloudinary.uploader.upload(req?.file.buffer, {
                         folder: 'users',
                         transformation: [{ width: 300, height: 300, crop: 'limit' }],
                     });
