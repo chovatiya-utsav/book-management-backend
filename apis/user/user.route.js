@@ -16,7 +16,7 @@ router.route('/numberOfUsers')
     .get(UserCtrl.getUserCount);
 
 router.route('/updateUserDetail')
-    .post(upload.single('book_image'),UserCtrl.updateUserData);
+    .post(upload.single('profile_image'),UserCtrl.updateUserData);
 
 router.route('/')
     .post(UserCtrl.getUserLoginData);

@@ -171,9 +171,6 @@ const updateUserData = async (req, res, next) => {
                         transformation: [{ width: 300, height: 300, crop: 'limit' }],
                     });
 
-                    // Optionally: delete old image from cloudinary using public_id if stored
-                    // await cloudinary.uploader.destroy(user.image_public_id);
-
                     userData.profile_image = result.secure_url;
 
                 }
