@@ -1,10 +1,8 @@
 const { getUserID } = require('../../utils/auth.js');
+const { deleteCloudinaryImage, uplodeUserProfileImage } = require('../../utils/image.js');
 const Users = require('./user.model');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-// const { cloudinary } = require('../../utils.js');
-const fs = require('fs');
-const { cloudinary } = require('../../utils/cloudinary.js');
 
 const generateToken = (payload) => {
     return jwt.sign(
@@ -163,16 +161,12 @@ const updateUserData = async (req, res, next) => {
                         const folder = parts[parts.length - 2]; // assuming one folder level
                         publicId = `${folder}/${fileName.split('.')[0]}`; // remove .jpg or .png
 
-                        await cloudinary.uploader.destroy(publicId);
+                        await deleteCloudinaryImage(publicId);
                     }
 
-                    const result = await cloudinary.uploader.upload(req?.file.buffer, {
-                        folder: 'users',
-                        transformation: [{ width: 300, height: 300, crop: 'limit' }],
-                    });
-
-                    userData.profile_image = result.secure_url;
-
+                    const imagePath = req.file?.buffer;
+                    const imageUrl = imagePath ? await uplodeUserProfileImage(imagePath) : null;
+                    userData.profile_image = imageUrl;
                 }
 
 
