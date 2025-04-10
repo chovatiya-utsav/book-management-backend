@@ -122,16 +122,17 @@ const deleteBook = async (req, res, next) => {
         const { bookId } = req.params;
 
         if (!bookId) {
-            res.status(400).json("bookId is Requrid")
+            return res.status(400).json({ message: "bookId is required" });
         }
 
-        const book = await Books.findById(bookId)
-
+        // Find the book by its ID
+        const book = await Books.findById(bookId);
 
         if (!book) {
-            throw new ApiError(404, "Book not found or already deleted")
+            return res.status(404).json({ message: "Book not found" });
         }
 
+        // If the book has an image, proceed to delete the image from Cloudinary
         if (book.book_image) {
             const getPublicIdFromUrl = (imageUrl) => {
                 const parts = imageUrl.split('/');
@@ -141,29 +142,33 @@ const deleteBook = async (req, res, next) => {
             };
 
             const publicId = getPublicIdFromUrl(book.book_image);
-            await deleteCloudinaryImage(publicId);
+            // Call the function to delete the image from Cloudinary
+            const imageDeleted = await deleteCloudinaryImage(publicId);
+            if (!imageDeleted) {
+                return res.status(400).json({ message: "Failed to delete image from Cloudinary" });
+            }
         }
 
+        // Delete the book data from the database
         const deleteBookData = await Books.findByIdAndDelete(bookId);
 
+        // Delete related reviews and wishlist items
         const deleteBookReview = await Review.deleteMany({ book_id: bookId });
+        const deleteBookWishlist = await wishlist.deleteMany({ book_id: bookId });
 
-        const deleteBookwishlist = await wishlist.deleteMany({ book_id: bookId });
-
-
-        if (deleteBookData && deleteBookReview && deleteBookwishlist) {
-            res.status(200).json({
-                message: "book delete susseccfully",
+        if (deleteBookData && deleteBookReview && deleteBookWishlist) {
+            return res.status(200).json({
+                message: "Book deleted successfully",
                 status: 200
-            })
+            });
         } else {
-            next()
+            return res.status(500).json({ message: "Failed to delete book, review, or wishlist" });
         }
 
     } catch (error) {
         next(error);
     }
-}
+};
 
 const updateBookData = async (req, res, next) => {
     try {
@@ -190,8 +195,9 @@ const updateBookData = async (req, res, next) => {
                 if (published_year) bookDataToUpdate.published_year = published_year;
 
 
+                // If a new image is provided
                 if (req?.file) {
-
+                    // Delete the old image from Cloudinary if it exists
                     if (existingBook?.book_image) {
                         const getPublicIdFromUrl = (imageUrl) => {
                             const parts = imageUrl.split('/');
@@ -204,14 +210,13 @@ const updateBookData = async (req, res, next) => {
                         await deleteCloudinaryImage(publicId);
                     }
 
-                    const imagePath = req.file?.path;
+                    // Upload the new image to Cloudinary
+                    const imagePath = req.file?.buffer;
                     const imageUrl = imagePath ? await uplodeBookImage(imagePath) : null;
 
-                    // Optionally: delete old image from cloudinary using public_id if stored
-                    // await cloudinary.uploader.destroy(user.image_public_id);
-
-                    bookDataToUpdate.book_image = imageUrl;
-
+                    if (imageUrl) {
+                        bookDataToUpdate.book_image = imageUrl; // Update the book with the new image URL
+                    }
                 }
 
 

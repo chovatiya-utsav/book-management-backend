@@ -13,7 +13,7 @@ router.route('/deleteBookById/:bookId')
     .delete(BooksCtrl.deleteBook);
 
 router.route('/updateBook')
-    .post(BooksCtrl.updateBookData);
+    .post(upload.single('book_image'),BooksCtrl.updateBookData);
 
 
 router.route('/numberOfBooks')
