@@ -2,22 +2,34 @@ const { cloudinary } = require('./cloudinary');
 const streamifier = require('streamifier');
 const fs = require('fs');
 
+
 const uplodeBookImage = async (fileBuffer) => {
     try {
-        const result = await cloudinary.uploader.upload_stream(filePath, {
-            folder: 'books',
-            resource_type: 'auto'
-        });
-        console.log('✅ Image uploaded successfully');
-        // fs.unlinkSync(filePath);
-        streamifier.createReadStream(fileBuffer).pipe(result);
-        return result.secure_url;
+        // Using cloudinary's upload_stream function
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder: 'books',
+                resource_type: 'auto'
+            },
+            (error, result) => {
+                if (error) {
+                    console.error('❌ Cloudinary upload failed:', error);
+                    return null;
+                }
+                console.log('✅ Image uploaded successfully');
+                return result.secure_url;
+            }
+        );
+
+        // Pipe the fileBuffer into the upload stream
+        streamifier.createReadStream(fileBuffer).pipe(uploadStream);
+
     } catch (error) {
-        // if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         console.error('❌ Cloudinary upload failed:', error);
         return null;
     }
 };
+
 
 const deleteCloudinaryImage = async (publicId) => {
     try {
