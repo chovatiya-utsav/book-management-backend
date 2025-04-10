@@ -33,8 +33,7 @@ const createBook = async (req, res, next) => {
         }
 
         // Upload book image
-        const imagePath = req.file.buffer;
-        const imageUrl = await uplodeBookImage(imagePath);
+        const imageUrl = await uplodeBookImage(req.file.buffer);
         if (!imageUrl) {
             return res.status(400).json({ message: "Image not uploaded" });
         }
