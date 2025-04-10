@@ -33,7 +33,7 @@ const createBook = async (req, res, next) => {
         }
 
         // Upload book image
-        const imagePath = req.file.path;
+        const imagePath = req.file.buffer;
         const imageUrl = await uplodeBookImage(imagePath);
         if (!imageUrl) {
             return res.status(400).json({ message: "Image not uploaded" });
@@ -66,6 +66,8 @@ const createBook = async (req, res, next) => {
         next(error);
     }
 };
+
+
 const getBookData = async (req, res, next) => {
     try {
         const allBookData = await Books.find({});
