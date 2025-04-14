@@ -9,6 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 // DB connection (prevent re-connection on every function call)
+
 let isDbConnected = false;
 const connectDB = async () => {
   if (!isDbConnected) {
